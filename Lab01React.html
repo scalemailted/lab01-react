@@ -239,15 +239,15 @@ shared player state in memory.</p>
 <hr/>
 <h2 id="lab-introduction">Lab Introduction</h2>
 <blockquote><p>Iterative workflow: complete one goal, save the project, run the application, and perform that goal’s Assess checks before continuing. Every page is imported and registered in the same goal that creates it. Links to not-yet-created destinations are not tested until their destination is registered.</p></blockquote>
-<div class="patch-legend"><strong>How to read the code examples:</strong> <span class="legend-chip create-chip">Create file</span> <span class="legend-chip add-chip">Add these lines</span> <span class="legend-chip review-chip">Completed reference</span></div><p class="delta-note">Every patch listing shows the complete file as it should exist after the goal. Unhighlighted lines already existed; highlighted lines are new or changed in the current goal.</p>
+<div class="patch-legend"><strong>How to read the code examples:</strong> <span class="legend-chip create-chip">Create file</span> <span class="legend-chip add-chip">Add these lines</span> <span class="legend-chip review-chip">Completed reference</span> <span class="legend-chip terminal-chip">&gt;_ Terminal command</span></div><p class="delta-note">Light code listings are source files to create or edit. Dark Terminal listings are commands to enter in a terminal window; the green <code>$</code> prompt is a visual cue and is not part of the command. Every patch listing shows the complete file as it should exist after the goal; unhighlighted lines already existed, and highlighted lines are new or changed.</p>
 <h3 id="prerequisites">Prerequisites</h3>
 <p>Complete Lab 01: HTML first. You should recognize HTML elements,
 attributes, links, forms, media elements, JavaScript functions, event
 handlers, and query strings. No previous React experience is
-required. The pinned Vite version requires Node.js
-<code>20.19.0</code> or newer in the Node 20 line, or
-<code>22.12.0</code> or newer. Check your installation with
-<code>node --version</code> before beginning.</p>
+required. This lab's Vite version runs on Node.js 18, 20, and 22 or
+newer. Node.js 22 or newer is recommended, but the broader range helps
+existing classroom installations. Check your version before beginning:</p>
+<pre class="terminal"><code><span>node --version</span></code></pre>
 <blockquote>
 <p><strong>Starter project:</strong> Download and extract the
 <a href="https://github.com/scalemailted/html-adventure-story/archive/refs/heads/master.zip">HTML Adventure Story starter files</a> before beginning. Keep the original HTML files available for comparison while you refactor the application into React.</p>
@@ -276,8 +276,8 @@ project commands such as <code>npm run dev</code>.</td>
 <tr>
 <td><code>package.json</code></td>
 <td>The project manifest: its name, dependencies, and command scripts.</td>
-<td>Tells npm which tested package versions to install and tells students
-which development and build commands are available.</td>
+<td>Tells npm which compatible major-version ranges to install and tells
+students which development and build commands are available.</td>
 </tr>
 <tr>
 <td><code>package-lock.json</code></td>
@@ -307,10 +307,10 @@ Most other settings can use Vite's defaults.</td>
 </tbody>
 </table>
 <p>The commands have different jobs:</p>
-<pre class="text"><code>npm install       # Read package.json and install the tools and libraries
-npm run dev       # Start Vite's development server while you work
-npm run build     # Ask Vite to create a production-ready dist/ folder
-npm run preview   # Locally serve the production build for a final check</code></pre>
+<pre class="text terminal"><code><span>npm install       # Read package.json and install the tools and libraries</span>
+<span>npm run dev       # Start Vite's development server while you work</span>
+<span>npm run build     # Ask Vite to create a production-ready dist/ folder</span>
+<span>npm run preview   # Locally serve the production build for a final check</span></code></pre>
 <p>Source files use <strong>ES modules</strong>:
 <code>export</code> makes a value available from one file, and
 <code>import</code> brings it into another. Vite starts at
@@ -441,6 +441,67 @@ provider, so it no longer needs to travel through the URL.</p>
 <h3 id="goal">Goal</h3>
 <p>Refactor the existing interactive story into a React SPA while
 keeping feature and visual parity with the HTML version.</p><blockquote><p><strong>Work iteratively:</strong> Keep <code>npm run dev</code> running. At the end of every goal, stop coding and complete its Assess phase before continuing. Each page is imported and registered in the same goal that creates it, so the application remains runnable throughout the lab.</p></blockquote>
+<h3 id="what-we-are-building">What We Are Building: Story Flow and Composable UI</h3>
+<p>Before thinking about files or React syntax, view the game as a
+<strong>scene graph</strong>. Each box is something the player can see, and
+each arrow is a choice or outcome that changes what appears next. The
+flowchart below is the user-facing story that both the original HTML game and
+the React refactor implement.</p>
+<figure class="scene-flow-figure">
+  <a href="assets/scene-flow.png">
+    <img src="assets/scene-flow.png"
+      alt="Interactive story flowchart. Index leads to Intro, then Overworld. Overworld branches to Dungeon, Forest, and Shoppe. Dungeon leads to Dragon. Forest branches to Swamp and Goblin. Swamp branches to the outside-hut death outcome and the locked Hut, which leads to the Hut Interior. Game-over and completed branches return to the beginning."
+      loading="lazy"/>
+  </a>
+  <figcaption>Interactive story scene flow. Select the image to open the
+  full-size diagram.</figcaption>
+</figure>
+<blockquote class="important-note">
+<p><strong>React translation:</strong> The diagram comes from the original
+HTML version, so a few labels describe story states rather than final React
+filenames. <code>index</code> becomes the <code>Home</code> component,
+<code>locked hut</code> becomes local state inside
+<code>src/pages/Hut.jsx</code>, <code>inside hut</code> becomes
+<code>src/pages/HutInside.jsx</code>, and <code>outside hut</code> is the
+Swamp's conditionally rendered death outcome.</p>
+</blockquote>
+<p>React lets us model this design through three connected ideas:</p>
+<table>
+<thead>
+<tr><th>Design view</th><th>Question it answers</th><th>React representation</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>User flow</strong></td>
+<td>Which scene can the player reach next?</td>
+<td>A current page name in state and calls such as
+<code>goTo('forest')</code>.</td>
+</tr>
+<tr>
+<td><strong>Page components</strong></td>
+<td>What unique content appears in this scene?</td>
+<td>Components such as <code>Overworld</code>, <code>Forest</code>, and
+<code>Shoppe</code> under <code>src/pages/</code>.</td>
+</tr>
+<tr>
+<td><strong>Composable UI</strong></td>
+<td>Which interface pieces repeat across scenes?</td>
+<td>Shared components such as <code>GamePage</code>,
+<code>ActionLink</code>, <code>Inventory</code>, and
+<code>DeathScreen</code> under <code>src/components/</code>.</td>
+</tr>
+<tr>
+<td><strong>Game state</strong></td>
+<td>Which values must survive when the visible scene changes?</td>
+<td><code>GameProvider</code> shares page and player data; scene-only values
+such as goblin health or a locked door remain local.</td>
+</tr>
+</tbody>
+</table>
+<p>The flowchart describes <em>where the player can go</em>; component
+composition describes <em>how each scene is assembled</em>; and state
+describes <em>what the game remembers</em>. The goals build these layers
+incrementally rather than attempting the entire graph at once.</p>
 <h3 id="learning-objectives">Learning Objectives</h3>
 <p>By the end of this lab, you will be able to:</p>
 <ul>
@@ -566,17 +627,21 @@ source uses JSX, which browsers do not read directly. Vite provides a
 development server and converts JSX into browser-ready JavaScript.</p>
 <p><strong>Design:</strong> Establish the toolchain before introducing React
 components. <code>index.html</code> supplies one mount point,
-<code>src/main.jsx</code> is the module entry, Vite resolves imports and
-transforms JSX, and <code>public/assets</code> exposes media at predictable
-URLs. This runnable foundation becomes the checkpoint for every later goal.</p>
+<code>public/assets</code> exposes media at predictable URLs, and Vite proves
+it can serve the document before any application JavaScript exists. Goal 2
+will add the module entry and activate React.</p>
 <h3 id="apply--implementation-phase-1">Apply — Implementation Phase</h3>
 <p><strong>How these steps extend the app:</strong> Steps 1–2 define the
 commands and JSX transformation pipeline; Step 3 creates the one document
-React will use; Step 4 makes story media available; Step 5 provides a minimal
-runnable entry; and Step 6 installs dependencies and proves the foundation
-works before components are added.</p>
+React will use; Step 4 makes story media available; and Step 5 installs
+dependencies and proves the blank Vite foundation works before components are
+added.</p>
 <p><strong>Step 1: Define the project.</strong> Create
 <code>package.json</code>:</p>
+<p class="step-context"><strong>What and why:</strong> This manifest names the
+app, declares the React and Vite packages it needs, and defines the terminal
+commands used throughout the lab. npm reads this file when it installs and
+runs the project.</p>
 <div class="code-label create-label">CREATE FILE — use the complete listing</div><div class="sourceCode instruction-code code-create" id="cb4"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb4-1"><a aria-hidden="true" href="#cb4-1" tabindex="-1"></a><span class="fu">{</span></span>
 <span id="cb4-2"><a aria-hidden="true" href="#cb4-2" tabindex="-1"></a>  <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"react-adventure-game"</span><span class="fu">,</span></span>
 <span id="cb4-3"><a aria-hidden="true" href="#cb4-3" tabindex="-1"></a>  <span class="dt">"private"</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
@@ -588,18 +653,27 @@ works before components are added.</p>
 <span id="cb4-9"><a aria-hidden="true" href="#cb4-9" tabindex="-1"></a>    <span class="dt">"preview"</span><span class="fu">:</span> <span class="st">"vite preview"</span></span>
 <span id="cb4-10"><a aria-hidden="true" href="#cb4-10" tabindex="-1"></a>  <span class="fu">},</span></span>
 <span id="cb4-11"><a aria-hidden="true" href="#cb4-11" tabindex="-1"></a>  <span class="dt">"dependencies"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb4-12"><a aria-hidden="true" href="#cb4-12" tabindex="-1"></a>    <span class="dt">"@vitejs/plugin-react"</span><span class="fu">:</span> <span class="st">"6.0.4"</span><span class="fu">,</span></span>
-<span id="cb4-13"><a aria-hidden="true" href="#cb4-13" tabindex="-1"></a>    <span class="dt">"vite"</span><span class="fu">:</span> <span class="st">"8.1.5"</span><span class="fu">,</span></span>
-<span id="cb4-14"><a aria-hidden="true" href="#cb4-14" tabindex="-1"></a>    <span class="dt">"react"</span><span class="fu">:</span> <span class="st">"19.2.8"</span><span class="fu">,</span></span>
-<span id="cb4-15"><a aria-hidden="true" href="#cb4-15" tabindex="-1"></a>    <span class="dt">"react-dom"</span><span class="fu">:</span> <span class="st">"19.2.8"</span></span>
+<span id="cb4-12"><a aria-hidden="true" href="#cb4-12" tabindex="-1"></a>    <span class="dt">"@vitejs/plugin-react"</span><span class="fu">:</span> <span class="st">"^4.7.0"</span><span class="fu">,</span></span>
+<span id="cb4-13"><a aria-hidden="true" href="#cb4-13" tabindex="-1"></a>    <span class="dt">"vite"</span><span class="fu">:</span> <span class="st">"^6.4.0"</span><span class="fu">,</span></span>
+<span id="cb4-14"><a aria-hidden="true" href="#cb4-14" tabindex="-1"></a>    <span class="dt">"react"</span><span class="fu">:</span> <span class="st">"^19.0.0"</span><span class="fu">,</span></span>
+<span id="cb4-15"><a aria-hidden="true" href="#cb4-15" tabindex="-1"></a>    <span class="dt">"react-dom"</span><span class="fu">:</span> <span class="st">"^19.0.0"</span></span>
 <span id="cb4-16"><a aria-hidden="true" href="#cb4-16" tabindex="-1"></a>  <span class="fu">}</span></span>
 <span id="cb4-17"><a aria-hidden="true" href="#cb4-17" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p><strong>What this adds:</strong> <code>package.json</code> identifies the
-project, records exact dependency versions, and defines the commands used
-throughout the lab. <code>type: "module"</code> enables the
+project, defines compatible dependency ranges, and records the commands used
+throughout the lab. The caret in <code>^19.0.0</code> means npm may install
+newer compatible React 19 minor and patch releases, but it will not cross into
+React 20. The same major-version boundary applies to Vite and its plugin. This
+keeps the lab flexible across student machines without silently accepting a
+future breaking major release. After installation,
+<code>package-lock.json</code> records the exact versions that machine
+resolved. <code>type: "module"</code> enables the
 <code>import</code>/<code>export</code> syntax used by every source file.</p>
 <p><strong>Step 2: Configure Vite.</strong> Create
 <code>vite.config.js</code>:</p>
+<p class="step-context"><strong>What and why:</strong> This configuration adds
+Vite's React plugin so the development server can transform JSX and refresh
+React components as students edit them.</p>
 <div class="code-label create-label">CREATE FILE — use the complete listing</div><div class="sourceCode instruction-code code-create" id="cb5"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb5-1"><a aria-hidden="true" href="#cb5-1" tabindex="-1"></a><span class="im">import</span> { defineConfig } <span class="im">from</span> <span class="st">'vite'</span></span>
 <span id="cb5-2"><a aria-hidden="true" href="#cb5-2" tabindex="-1"></a><span class="im">import</span> react <span class="im">from</span> <span class="st">'@vitejs/plugin-react'</span></span>
 <span id="cb5-3"><a aria-hidden="true" href="#cb5-3" tabindex="-1"></a></span>
@@ -612,6 +686,9 @@ is intentionally small because Vite supplies suitable development and build
 defaults.</p>
 <p><strong>Step 3: Create the single HTML document.</strong> Replace
 <code>index.html</code> with:</p>
+<p class="step-context"><strong>What and why:</strong> This is the browser's
+one HTML entry document. It supplies metadata, the favicon, and an empty
+<code>#root</code> container that React will take ownership of in Goal 2.</p>
 <div class="code-label create-label">CREATE FILE — use the complete listing</div><div class="sourceCode instruction-code code-create" id="cb6"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb6-1"><a aria-hidden="true" href="#cb6-1" tabindex="-1"></a><span class="dt">&lt;!doctype </span>html<span class="dt">&gt;</span></span>
 <span id="cb6-2"><a aria-hidden="true" href="#cb6-2" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span> <span class="er">lang</span><span class="ot">=</span><span class="st">"en"</span><span class="dt">&gt;</span></span>
 <span id="cb6-3"><a aria-hidden="true" href="#cb6-3" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">head</span><span class="dt">&gt;</span></span>
@@ -622,36 +699,71 @@ defaults.</p>
 <span id="cb6-8"><a aria-hidden="true" href="#cb6-8" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">head</span><span class="dt">&gt;</span></span>
 <span id="cb6-9"><a aria-hidden="true" href="#cb6-9" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="dt">&gt;</span></span>
 <span id="cb6-10"><a aria-hidden="true" href="#cb6-10" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">div</span> <span class="er">id</span><span class="ot">=</span><span class="st">"root"</span><span class="dt">&gt;&lt;/</span><span class="kw">div</span><span class="dt">&gt;</span></span>
-<span id="cb6-11"><a aria-hidden="true" href="#cb6-11" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">script</span><span class="ot"> type=</span><span class="st">"module"</span> <span class="er">src</span><span class="ot">=</span><span class="st">"/src/main.jsx"</span><span class="dt">&gt;&lt;/</span><span class="kw">script</span><span class="dt">&gt;</span></span>
-<span id="cb6-12"><a aria-hidden="true" href="#cb6-12" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
-<span id="cb6-13"><a aria-hidden="true" href="#cb6-13" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code></pre></div>
-<p>Unlike the original lab, the body only needs a root element and one
-module script. React will create the visible page inside
-<code>#root</code>.</p>
+<span id="cb6-11"><a aria-hidden="true" href="#cb6-11" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
+<span id="cb6-12"><a aria-hidden="true" href="#cb6-12" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code></pre></div>
+<p>Unlike the original game, this will be the only HTML document. The empty
+<code>#root</code> element reserves the location where React will render in
+Goal 2. There is intentionally no module script yet, so the page remains
+blank.</p>
 <p><strong>Step 4: Place the starter media where Vite can serve it.</strong>
 Create <code>public/</code>, then move or copy the downloaded starter
 <code>assets/</code> folder into it. Confirm the result is
 <code>public/assets/</code>, not <code>public/assets/assets/</code>. Files
 referenced as <code>/assets/...</code> are then available in both the
 development server and the production build.</p>
-<p><strong>Step 5: Create a temporary entry module.</strong> Create
-<code>src/main.jsx</code> so the Vite project has a valid entry point
-before React components are introduced:</p>
-<div class="code-label create-label">CREATE FILE — use the complete listing</div>
-<pre class="sourceCode jsx instruction-code code-create"><code>document.getElementById('root').textContent = 'Vite project ready.'</code></pre>
-<p>Goal 2 replaces this temporary entry module with the React root. For now,
-it confirms that Vite can load the project without a missing-module error.</p>
-<p><strong>Step 6: Install and launch.</strong> In a terminal, run:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a aria-hidden="true" href="#cb7-1" tabindex="-1"></a><span class="ex">npm</span> install</span>
+<div class="asset-placement">
+  <div class="asset-flow" aria-label="Move the starter assets folder into the public folder">
+    <div class="asset-source">
+      <strong>1. Start with the downloaded folder</strong>
+      <pre class="folder-tree"><code>assets/
+├── game-title.gif
+├── dragon-logo.png
+└── ...</code></pre>
+    </div>
+    <div class="asset-arrow" aria-hidden="true">→</div>
+    <div class="asset-target">
+      <strong>2. Place that folder inside <code>public/</code></strong>
+      <pre class="folder-tree correct-tree"><code>react-adventure-game/
+├── package.json
+├── vite.config.js
+├── index.html
+└── public/
+    └── assets/
+        ├── game-title.gif
+        ├── dragon-logo.png
+        └── ...</code></pre>
+    </div>
+    <div class="placement-card incorrect-placement">
+      <strong>✗ Incorrect project placement</strong>
+      <code>react-adventure-game/assets/game-title.gif</code>
+    </div>
+    <div class="placement-card correct-placement">
+      <strong>✓ Correct project placement</strong>
+      <code>react-adventure-game/public/assets/game-title.gif</code>
+    </div>
+  </div>
+  <p class="placement-check"><strong>Checkpoint:</strong> Before continuing,
+  confirm that both <code>public/assets/dragon-logo.png</code> and
+  <code>public/assets/game-title.gif</code> exist. There should be only one
+  <code>assets/</code> level inside <code>public/</code>.</p>
+</div>
+<p><strong>Step 5: Install and launch.</strong> In a terminal, run:</p>
+<p class="step-context"><strong>What and why:</strong> <code>npm install</code>
+resolves the declared packages, and <code>npm run dev</code> starts Vite's
+local server so the blank foundation and public assets can be verified before
+React is connected.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash terminal"><code class="sourceCode bash"><span id="cb7-1"><a aria-hidden="true" href="#cb7-1" tabindex="-1"></a><span class="ex">npm</span> install</span>
 <span id="cb7-2"><a aria-hidden="true" href="#cb7-2" tabindex="-1"></a><span class="ex">npm</span> run dev</span></code></pre></div>
 <p>Open the local URL Vite prints. Keep the server running while you
 work. Vite refreshes the browser after saved changes.</p>
 <h3 id="assess--testing-phase-1">Assess — Testing Phase</h3>
 <p>The browser should connect through an <code>http://localhost</code>
-address and display “Vite project ready.” Open
-<code>http://localhost:5173/assets/game-title.gif</code> and confirm the
-starter image loads. Do not open <code>index.html</code> with the
-<code>file://</code> protocol.</p>
+address and show the “React Adventure Game” tab title and dragon favicon. The
+page content is intentionally blank because React has not been connected yet.
+Open <code>http://localhost:5173/assets/game-title.gif</code> and confirm the
+starter image loads. These checks prove Vite is serving
+<code>index.html</code> and <code>public/assets</code>. Do not open
+<code>index.html</code> with the <code>file://</code> protocol.</p>
 <hr/>
 <h2 id="goal-2-render-the-home-component-with-jsx">Goal 2: Render the
 Home Component with JSX</h2>
@@ -665,12 +777,18 @@ visible page, and Home becomes the first component in a registry later goals
 will extend. React derives the visible DOM from component return values rather
 than from permanent markup in <code>index.html</code>.</p>
 <h3 id="apply--implementation-phase-2">Apply — Implementation Phase</h3>
-<p><strong>How these steps extend the app:</strong> Step 1 replaces the
-temporary module with the React root, Step 2 supplies the first visible page
-component, and Step 3 introduces the registry and selection boundary that all
-future pages will use.</p>
-<p><strong>Step 1: Mount React.</strong> Patch <code>src/main.jsx</code>, replacing the temporary Goal 1 content with the complete React entry module:</p>
-<div class="code-label add-label">PATCH EXISTING FILE — <code>src/main.jsx</code> — complete file shown; all lines replace the temporary Goal 1 module</div><div class="sourceCode instruction-code code-create" id="cb8"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb8-1"><a aria-hidden="true" href="#cb8-1" tabindex="-1"></a><span class="im">import</span> { StrictMode } <span class="im">from</span> <span class="st">'react'</span></span>
+<p><strong>How these steps extend the app:</strong> Step 1 creates React's
+entry module, Step 2 supplies the first visible page component, Step 3
+introduces the registry and page-selection boundary, and Step 4 activates the
+completed module graph from <code>index.html</code>. Creating dependencies
+before activating the script prevents missing-import errors between saves.</p>
+<p><strong>Step 1: Create the React entry module.</strong> Create
+<code>src/main.jsx</code>:</p>
+<p class="step-context"><strong>What and why:</strong> This module creates the
+React root and asks it to render <code>App</code> inside the HTML
+<code>#root</code>. Keeping startup here gives the rest of the app a single,
+predictable entry point.</p>
+<div class="code-label create-label">CREATE FILE — use the complete listing</div><div class="sourceCode instruction-code code-create" id="cb8"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb8-1"><a aria-hidden="true" href="#cb8-1" tabindex="-1"></a><span class="im">import</span> { StrictMode } <span class="im">from</span> <span class="st">'react'</span></span>
 <span id="cb8-2"><a aria-hidden="true" href="#cb8-2" tabindex="-1"></a><span class="im">import</span> { createRoot } <span class="im">from</span> <span class="st">'react-dom/client'</span></span>
 <span id="cb8-3"><a aria-hidden="true" href="#cb8-3" tabindex="-1"></a><span class="im">import</span> App <span class="im">from</span> <span class="st">'./App.jsx'</span></span>
 <span id="cb8-5"><a aria-hidden="true" href="#cb8-5" tabindex="-1"></a></span>
@@ -681,9 +799,14 @@ future pages will use.</p>
 <span id="cb8-10"><a aria-hidden="true" href="#cb8-10" tabindex="-1"></a>)</span></code></pre></div>
 <p><code>createRoot</code> connects React to the existing
 <code>&lt;div id="root"&gt;</code>. <code>&lt;App /&gt;</code> renders
-the App component.</p>
+the App component. This file is not loaded yet; Step 4 activates it after
+<code>App.jsx</code> and <code>Home.jsx</code> exist.</p>
 <p><strong>Step 2: Convert the original body into JSX.</strong> Create
 <code>src/pages/Home.jsx</code>:</p>
+<p class="step-context"><strong>What and why:</strong> This creates the first
+page component and expresses the title screen as JSX. It demonstrates how a
+component returns a tree of elements and references media from
+<code>public/assets</code>.</p>
 <div class="code-label create-label">CREATE FILE — use the complete listing</div><div class="sourceCode instruction-code code-create" id="cb9"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb9-1"><a aria-hidden="true" href="#cb9-1" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> <span class="kw">function</span> <span class="fu">Home</span>() {</span>
 <span id="cb9-2"><a aria-hidden="true" href="#cb9-2" tabindex="-1"></a>  <span class="cf">return</span> (</span>
 <span id="cb9-3"><a aria-hidden="true" href="#cb9-3" tabindex="-1"></a>    <span class="kw">&lt;main&gt;</span></span>
@@ -711,6 +834,10 @@ images.</li>
 </ul>
 <p><strong>Step 3: Create the page registry.</strong> Create
 <code>src/App.jsx</code> with a scalable page map from the beginning:</p>
+<p class="step-context"><strong>What and why:</strong> <code>App</code> stores
+the current page name and translates it into a component through a registry.
+This creates simple client-side navigation that later goals can extend one
+scene at a time.</p>
 <div class="code-label create-label">CREATE FILE — use the complete listing</div>
 <pre class="sourceCode jsx instruction-code code-create"><code>import { useState } from 'react'
 import Home from './pages/Home.jsx'
@@ -730,12 +857,40 @@ folder of HTML documents. Each key is a page name, and each value is the
 component React should render. For now, the registry contains only Home.
 Every later goal will import one or more new page components and add
 their entries to this same object.</p>
+<p><strong>Step 4: Activate React from <code>index.html</code>.</strong>
+Patch the document to load the completed entry module:</p>
+<p class="step-context"><strong>What and why:</strong> Adding the module script
+connects the HTML document to <code>src/main.jsx</code>. The browser can now
+follow the import chain from the entry module to <code>App</code> and
+<code>Home</code>.</p>
+<div class="code-label add-label">PATCH EXISTING FILE —
+<code>index.html</code> — complete file shown; the new module script is
+highlighted</div>
+<pre class="sourceCode html instruction-code code-add"><code><span>&lt;!doctype html&gt;</span>
+<span>&lt;html lang="en"&gt;</span>
+<span>  &lt;head&gt;</span>
+<span>    &lt;meta charset="UTF-8" /&gt;</span>
+<span>    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;</span>
+<span>    &lt;link rel="icon" href="/assets/dragon-logo.png" /&gt;</span>
+<span>    &lt;title&gt;React Adventure Game&lt;/title&gt;</span>
+<span>  &lt;/head&gt;</span>
+<span>  &lt;body&gt;</span>
+<span>    &lt;div id="root"&gt;&lt;/div&gt;</span>
+<span class="added-line">    &lt;script type="module" src="/src/main.jsx"&gt;&lt;/script&gt;</span>
+<span>  &lt;/body&gt;</span>
+<span>&lt;/html&gt;</span></code></pre>
+<p>The browser now requests <code>src/main.jsx</code>. Vite follows its
+imports to <code>App.jsx</code> and <code>Home.jsx</code>, transforms their
+JSX, and sends the resulting modules to the browser. React mounts only after
+the complete dependency chain exists.</p>
 <h3 id="assess--testing-phase-2">Assess — Testing Phase</h3>
 <p>The browser should show the same title image, text, and Start button
 as the HTML index page. The Start button does not navigate yet because
-Intro has not been registered. Inspect the page source:
-<code>index.html</code> still contains only <code>#root</code>. React
-creates the rendered elements at runtime.</p>
+Intro has not been registered. Use “View Page Source” and compare it with the
+Elements panel: the source body contains only <code>#root</code> and the
+module script, while the Elements panel also contains Home's rendered
+elements. This demonstrates that React creates the visible interface at
+runtime.</p>
 <hr/>
 <h2 id="goal-3-create-spa-page-navigation">Goal 3: Create SPA Page
 Navigation</h2>
@@ -844,6 +999,10 @@ state owner and game actions; Step 2 places that provider above the app; Step
 temporary props/local state to Context; and Step 5 connects the Intro story
 action to the shared gold update.</p>
 <p><strong>Step 1: Create <code>src/GameContext.jsx</code>.</strong></p>
+<p class="step-context"><strong>What and why:</strong> This Context provider
+will own navigation and player inventory in one shared state object. Its
+custom <code>useGame</code> hook gives any descendant component a consistent
+way to read or update that state.</p>
 <div class="code-label create-label">CREATE FILE — use the complete listing</div><div class="sourceCode instruction-code code-create" id="cb16"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb16-1"><a aria-hidden="true" href="#cb16-1" tabindex="-1"></a><span class="im">import</span> { createContext<span class="op">,</span> useContext<span class="op">,</span> useState } <span class="im">from</span> <span class="st">'react'</span></span>
 <span id="cb16-2"><a aria-hidden="true" href="#cb16-2" tabindex="-1"></a></span>
 <span id="cb16-3"><a aria-hidden="true" href="#cb16-3" tabindex="-1"></a><span class="kw">const</span> startingPlayer <span class="op">=</span> { <span class="dt">gp</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">hp</span><span class="op">:</span> <span class="dv">3</span><span class="op">,</span> <span class="dt">ap</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">keys</span><span class="op">:</span> <span class="dv">0</span> }</span>
@@ -891,6 +1050,10 @@ current player and overwrites only the fields supplied in
 directly.</p>
 <p><strong>Step 2: Wrap App in the provider in
 <code>src/main.jsx</code>.</strong></p>
+<p class="step-context"><strong>What and why:</strong> Wrapping
+<code>App</code> makes the shared game value available throughout the entire
+component tree. Without the provider, calls to <code>useGame</code> would have
+no state to read.</p>
 <div class="code-label add-label">PATCH EXISTING FILE — <code>src/main.jsx</code> — complete file shown; new or changed lines are highlighted</div><div class="sourceCode instruction-code code-add" id="cb17"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span>import { StrictMode } from 'react'</span>
 <span>import { createRoot } from 'react-dom/client'</span>
 <span>import App from './App.jsx'</span>
@@ -906,6 +1069,9 @@ directly.</p>
 </code></pre></div>
 <p><strong>Step 3: Create
 <code>src/components/Inventory.jsx</code>.</strong></p>
+<p class="step-context"><strong>What and why:</strong> This reusable component
+reads the shared player object and renders its current values. Centralizing
+the display prevents every scene from rebuilding the same inventory markup.</p>
 <div class="code-label create-label">CREATE FILE — use the complete listing</div><div class="sourceCode instruction-code code-create" id="cb18"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb18-1"><a aria-hidden="true" href="#cb18-1" tabindex="-1"></a><span class="im">import</span> { useGame } <span class="im">from</span> <span class="st">'../GameContext.jsx'</span></span>
 <span id="cb18-2"><a aria-hidden="true" href="#cb18-2" tabindex="-1"></a></span>
 <span id="cb18-3"><a aria-hidden="true" href="#cb18-3" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> <span class="kw">function</span> <span class="fu">Inventory</span>() {</span>
@@ -932,6 +1098,9 @@ JavaScript value. There is no iframe, query string,
 <code>goTo</code> props from Goal 3. App now reads the current page from
 Context, and Home starts a fresh game through Context.</p>
 <p>Patch <code>src/App.jsx</code>:</p>
+<p class="step-context"><strong>What and why:</strong> App no longer owns a
+second copy of the current page. It reads the Context page value so every
+navigation control updates the same source of truth.</p>
 <div class="code-label add-label">PATCH EXISTING FILE — <code>src/App.jsx</code> — complete file shown; new or changed lines are highlighted</div>
 <pre class="sourceCode jsx instruction-code code-add"><code><span class="added-line">import { useGame } from './GameContext.jsx'</span>
 <span>import Home from './pages/Home.jsx'</span>
@@ -1045,6 +1214,10 @@ component and Hook it uses. For example, a page using
 <code>useState</code> needs imports for all three at the top of the
 file. The completed project files provide an exact reference.</p>
 <p><strong>Step 1: Create <code>src/components/GamePage.jsx</code>.</strong></p>
+<p class="step-context"><strong>What and why:</strong> This component defines
+the common visual shell shared by story scenes—title, page content, inventory,
+and footer. Its <code>children</code> prop lets each scene supply only its
+unique content.</p>
 <div class="code-label create-label">CREATE FILE — use the complete listing</div><div class="sourceCode instruction-code code-create" id="cb20"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb20-1"><a aria-hidden="true" href="#cb20-1" tabindex="-1"></a><span class="im">import</span> Inventory <span class="im">from</span> <span class="st">'./Inventory.jsx'</span></span>
 <span id="cb20-2"><a aria-hidden="true" href="#cb20-2" tabindex="-1"></a></span>
 <span id="cb20-3"><a aria-hidden="true" href="#cb20-3" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> <span class="kw">function</span> <span class="fu">GamePage</span>({ title<span class="op">,</span> children<span class="op">,</span> showInventory <span class="op">=</span> <span class="kw">true</span> }) {</span>
@@ -1062,6 +1235,9 @@ file. The completed project files provide an exact reference.</p>
 <code>&amp;&amp;</code> operator conditionally renders inventory only
 when <code>showInventory</code> is true.</p>
 <p><strong>Step 2: Create <code>src/components/ActionLink.jsx</code>.</strong></p>
+<p class="step-context"><strong>What and why:</strong> This reusable control
+combines an optional game-state action with Context navigation. Scenes can
+describe where a choice leads without duplicating click-handling code.</p>
 <div class="code-label create-label">CREATE FILE — use the complete listing</div><div class="sourceCode instruction-code code-create" id="cb21"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb21-1"><a aria-hidden="true" href="#cb21-1" tabindex="-1"></a><span class="im">import</span> { useGame } <span class="im">from</span> <span class="st">'../GameContext.jsx'</span></span>
 <span id="cb21-2"><a aria-hidden="true" href="#cb21-2" tabindex="-1"></a></span>
 <span id="cb21-3"><a aria-hidden="true" href="#cb21-3" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> <span class="kw">function</span> <span class="fu">ActionLink</span>({ to<span class="op">,</span> children<span class="op">,</span> beforeNavigate }) {</span>
@@ -1082,6 +1258,10 @@ the destination renders; links that do not supply it navigate normally.
 navigation, and <code>goTo</code> changes the component shown by the
 SPA.</p>
 <p><strong>Step 3: Refactor <code>src/pages/Intro.jsx</code>.</strong></p>
+<p class="step-context"><strong>What and why:</strong> Replace Intro's
+one-off layout and button with the new shared components. The scene keeps its
+story-specific quest action while adopting the same shell and navigation
+interface later scenes will use.</p>
 <div class="code-label add-label">PATCH EXISTING FILE — <code>src/pages/Intro.jsx</code> — complete file shown; new or changed lines are highlighted</div><div class="sourceCode instruction-code code-add" id="cb22"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span class="added-line">import GamePage from '../components/GamePage.jsx'</span>
 <span class="added-line">import ActionLink from '../components/ActionLink.jsx'</span>
 <span class="added-line">import { useGame } from '../GameContext.jsx'</span>
@@ -1130,6 +1310,10 @@ links to major story branches, Step 2 adds the first branch scene, and Step 3
 registers both so the Intro → Overworld → Forest path becomes reachable and
 the quest deposit can be observed after navigation.</p>
 <p><strong>Step 1: Create <code>src/pages/Overworld.jsx</code>.</strong></p>
+<p class="step-context"><strong>What and why:</strong> This scene becomes the
+game's navigation hub. It composes <code>GamePage</code> and several
+<code>ActionLink</code> choices, showing how reusable pieces form a unique
+page.</p>
 <div class="code-label create-label">CREATE FILE — use the complete listing</div><div class="sourceCode instruction-code code-create" id="cb23"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact">import GamePage from '../components/GamePage.jsx'
 import ActionLink from '../components/ActionLink.jsx'
 
@@ -1151,6 +1335,9 @@ declares destinations through <code>ActionLink</code>. Some destinations are
 created later; the fallback in App keeps the app from crashing, while each
 link becomes fully testable when its page is registered.</p>
 <p><strong>Step 2: Create <code>src/pages/Forest.jsx</code>.</strong></p>
+<p class="step-context"><strong>What and why:</strong> This adds a second
+branching scene with routes to future encounters. It proves that the same
+component composition pattern can describe a different set of story choices.</p>
 <div class="code-label create-label">CREATE FILE — use the complete listing</div><div class="sourceCode instruction-code code-create" id="cb24"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact">import GamePage from '../components/GamePage.jsx'
 import ActionLink from '../components/ActionLink.jsx'
 
@@ -1173,6 +1360,10 @@ reuse the same shell and link abstraction while supplying different story
 content. Its Exit link also creates a return edge to the hub.</p>
 <p><strong>Step 3: Register Overworld and Forest in
 <code>src/App.jsx</code>.</strong></p>
+<p class="step-context"><strong>What and why:</strong> Importing the new page
+components and adding their keys to the registry makes the existing
+<code>ActionLink</code> destinations resolvable. Creating a component alone
+does not make it reachable.</p>
 <div class="code-label add-label">PATCH EXISTING FILE — <code>src/App.jsx</code> — complete file shown; new or changed lines are highlighted</div>
 <pre class="sourceCode jsx instruction-code code-add"><code><span>import { useGame } from './GameContext.jsx'</span>
 <span>import Home from './pages/Home.jsx'</span>
@@ -1225,6 +1416,10 @@ Step 3 registers Swamp so the existing Forest choice reaches a complete
 destination.</p>
 <p><strong>Step 1: Create a reusable
 <code>src/components/DeathScreen.jsx</code>.</strong></p>
+<p class="step-context"><strong>What and why:</strong> This component captures
+the repeated game-over layout in one place. A scene supplies its own image and
+message through props and <code>children</code>, while the component supplies
+the shared restart action.</p>
 <div class="code-label create-label">CREATE FILE — use the complete listing</div><div class="sourceCode instruction-code code-create" id="cb26"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact">import ActionLink from './ActionLink.jsx'
 
 export default function DeathScreen({ image, children }) {
@@ -1243,6 +1438,10 @@ game-over markup into a configurable component. The <code>image</code> prop
 and <code>children</code> message vary by cause of death, while navigation
 home and the scream audio remain consistent.</p>
 <p><strong>Step 2: Create <code>src/pages/Swamp.jsx</code>.</strong></p>
+<p class="step-context"><strong>What and why:</strong> Swamp introduces local
+component state for a choice that matters only inside this scene. React uses
+that state to switch from the safe choice interface to the reusable death
+screen.</p>
 <div class="code-label create-label">CREATE FILE — use the complete listing</div><div class="sourceCode instruction-code code-create" id="cb27"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact">import { useState } from 'react'
 import GamePage from '../components/GamePage.jsx'
 import ActionLink from '../components/ActionLink.jsx'
@@ -1270,6 +1469,9 @@ export default function Swamp() {
 <p>This is conditional rendering: when <code>dead</code> is true, the
 function returns a different component.</p>
 <p><strong>Step 3: Register Swamp in <code>src/App.jsx</code>.</strong></p>
+<p class="step-context"><strong>What and why:</strong> Add Swamp to the page
+registry so the Overworld route can render it. When the player leaves and
+returns, React remounts the scene and its local choice state begins fresh.</p>
 <div class="code-label add-label">PATCH EXISTING FILE — <code>src/App.jsx</code> — complete file shown; new or changed lines are highlighted</div>
 <pre class="sourceCode jsx instruction-code code-add"><code><span>import { useGame } from './GameContext.jsx'</span>
 <span>import Home from './pages/Home.jsx'</span>
@@ -1319,6 +1521,10 @@ whose event handler coordinates local feedback with persistent key
 consumption; Step 2 registers it so the Swamp's hut choice no longer points to
 an unavailable page.</p>
 <p><strong>Step 1: Create <code>src/pages/Hut.jsx</code>.</strong></p>
+<p class="step-context"><strong>What and why:</strong> Hut derives its
+interface from shared key inventory and local door state. Opening the door
+consumes a shared key, while the resulting message and open-door view remain
+specific to this scene.</p>
 <div class="code-label create-label">CREATE FILE — use the complete listing</div><div class="sourceCode instruction-code code-create" id="cb28"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact">import { useState } from 'react'
 import { useGame } from '../GameContext.jsx'
 import GamePage from '../components/GamePage.jsx'
@@ -1360,6 +1566,9 @@ export default function Hut() {
 image and its alternative text. Updating three state values causes React
 to render the new image, message, and inventory.</p>
 <p><strong>Step 2: Register Hut in <code>src/App.jsx</code>.</strong></p>
+<p class="step-context"><strong>What and why:</strong> Register the component
+so Forest's hut choice resolves to the new conditional scene and can be tested
+with the inventory carried from other pages.</p>
 <div class="code-label add-label">PATCH EXISTING FILE — <code>src/App.jsx</code> — complete file shown; new or changed lines are highlighted</div><pre class="sourceCode jsx instruction-code code-add"><code><span>import { useGame } from './GameContext.jsx'</span>
 <span>import Home from './pages/Home.jsx'</span>
 <span>import Intro from './pages/Intro.jsx'</span>
@@ -1405,6 +1614,10 @@ previously deferred interior scene and its video content; Step 2 registers the
 hyphenated page key so a second click on an unlocked Hut door can render that
 scene.</p>
 <p><strong>Step 1: Create <code>src/pages/HutInside.jsx</code>.</strong></p>
+<p class="step-context"><strong>What and why:</strong> This page adds the
+interior destination and demonstrates that video is composed into JSX much
+like an image. It reuses the standard page shell while supplying its own media
+and exit choice.</p>
 <div class="code-label create-label">CREATE FILE — use the complete listing</div><div class="sourceCode instruction-code code-create" id="cb29"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact">import GamePage from '../components/GamePage.jsx'
 import ActionLink from '../components/ActionLink.jsx'
 
@@ -1424,6 +1637,9 @@ so media participates in the same declarative render tree as headings,
 inventory, and links. Root-relative media URLs resolve from
 <code>public/assets</code> in development and production.</p>
 <p><strong>Step 2: Register Hut Interior in <code>src/App.jsx</code>.</strong></p>
+<p class="step-context"><strong>What and why:</strong> The new registry entry
+makes the open door's <code>hut-inside</code> destination valid and completes
+the two-scene hut interaction.</p>
 <div class="code-label add-label">PATCH EXISTING FILE — <code>src/App.jsx</code> — complete file shown; new or changed lines are highlighted</div><pre class="sourceCode jsx instruction-code code-add"><code><span>import { useGame } from './GameContext.jsx'</span>
 <span>import Home from './pages/Home.jsx'</span>
 <span>import Intro from './pages/Intro.jsx'</span>
@@ -1466,6 +1682,10 @@ update.</p>
 and its reusable purchase transaction; then register it so Overworld's
 existing Shoppe link reaches the new Context-updating scene.</p>
 <p>Create <code>src/pages/Shoppe.jsx</code>:</p>
+<p class="step-context"><strong>What and why:</strong> This scene reads the
+shared player state and funnels three purchase buttons through one reusable
+transaction. Each purchase first checks available gold, then applies a
+targeted inventory change through Context.</p>
 <div class="code-label create-label">CREATE FILE — use the complete listing</div><div class="sourceCode instruction-code code-create" id="cb31"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact">import { useGame } from '../GameContext.jsx'
 import GamePage from '../components/GamePage.jsx'
 import ActionLink from '../components/ActionLink.jsx'
@@ -1672,6 +1892,10 @@ Passing <code>showInventory={false}</code> demonstrates that a reusable
 component's default behavior can be overridden with a prop without creating a
 second page-shell component.</p>
 <p><strong>Step 2: Create <code>src/pages/Dungeon.jsx</code>.</strong></p>
+<p class="step-context"><strong>What and why:</strong> Dungeon uses a
+controlled input whose displayed value comes from React state. Submitting the
+form prevents a page reload, then navigates to Dragon for the correct word or
+renders a local failure state for any other value.</p>
 <div class="code-label create-label">CREATE FILE — use the complete listing</div><div class="sourceCode instruction-code code-create" id="cb30"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact">import { useState } from 'react'
 import { useGame } from '../GameContext.jsx'
 import GamePage from '../components/GamePage.jsx'
@@ -1717,6 +1941,9 @@ export default function Dungeon() {
 attribute. Handling the form's <code>onSubmit</code> supports both
 clicking Submit and pressing Enter.</p>
 <p><strong>Step 3: Register Dungeon and Dragon in <code>App.jsx</code>.</strong></p>
+<p class="step-context"><strong>What and why:</strong> Register both sides of
+the interaction at once so the Overworld can reach Dungeon and a successful
+form submission can immediately resolve to Dragon.</p>
 <div class="code-label add-label">PATCH EXISTING FILE — <code>src/App.jsx</code> — complete file shown; new or changed lines are highlighted</div><pre class="sourceCode jsx instruction-code code-add"><code><span>import { useGame } from './GameContext.jsx'</span>
 <span>import Home from './pages/Home.jsx'</span>
 <span>import Intro from './pages/Intro.jsx'</span>
@@ -1784,7 +2011,11 @@ Neither step introduces new story behavior—the goal is release confidence.</p>
 <span class="review-line" id="cb34-12"><a aria-hidden="true" href="#cb34-12" tabindex="-1"></a>  <span class="dt">goblin</span><span class="op">:</span> Goblin<span class="op">,</span></span>
 <span class="review-line" id="cb34-13"><a aria-hidden="true" href="#cb34-13" tabindex="-1"></a>}</span></code></pre></div>
 <p><strong>Step 2: Build the production app.</strong></p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb36-1"><a aria-hidden="true" href="#cb36-1" tabindex="-1"></a><span class="ex">npm</span> run build</span></code></pre></div>
+<p class="step-context"><strong>What and why:</strong> This command asks Vite
+to validate the complete module graph and produce optimized deployment files
+in <code>dist/</code>. A successful build verifies a stricter path than the
+development server alone.</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode bash terminal"><code class="sourceCode bash"><span id="cb36-1"><a aria-hidden="true" href="#cb36-1" tabindex="-1"></a><span class="ex">npm</span> run build</span></code></pre></div>
 <p>Vite writes the deployable site to <code>dist/</code>. Do not edit
 files inside <code>dist</code>; they are generated from the source
 files.</p>
@@ -2002,10 +2233,76 @@ Guide</h2>
 </tbody>
 </table>
 <script>
-  // Patch listings use one span per line so added lines can keep their green
-  // background. Apply lightweight, local JSX highlighting without replacing
-  // those line spans or requiring a network-loaded syntax library.
-  (() => {
+  // Give every file-editing listing an attached, centered path header. The
+  // path is taken from the step immediately above it (or from an existing
+  // patch label), keeping the visible label synchronized with the tutorial.
+  ;(() => {
+    const filePattern = /(?:[\w.-]+\/)*[\w.-]+\.(?:html|jsx|js|json|css|md)\b/
+
+    function nearbyFilePath(label) {
+      const ownPath = label.textContent.match(filePattern)
+      if (ownPath) return ownPath[0]
+
+      let sibling = label.previousElementSibling
+      for (let checked = 0; sibling && checked < 3; checked += 1) {
+        const candidates = [...sibling.querySelectorAll('code')]
+          .map((code) => code.textContent.match(filePattern)?.[0])
+          .filter(Boolean)
+        if (candidates.length) return candidates.at(-1)
+        sibling = sibling.previousElementSibling
+      }
+
+      return null
+    }
+
+    document.querySelectorAll('.code-label').forEach((label) => {
+      const filePath = nearbyFilePath(label)
+      if (!filePath) return
+
+      const action = label.classList.contains('add-label')
+        ? 'PATCH EXISTING FILE — complete file shown'
+        : label.classList.contains('review-label')
+          ? 'COMPLETED REFERENCE — compare your file'
+          : 'CREATE FILE — use the complete listing'
+
+      const pathLine = document.createElement('span')
+      pathLine.className = 'code-file-path'
+      pathLine.textContent = filePath
+
+      const actionLine = document.createElement('span')
+      actionLine.className = 'code-file-action'
+      actionLine.textContent = action
+
+      label.replaceChildren(pathLine, actionLine)
+    })
+  })()
+
+  // Normalize every instructional listing to one direct child span per
+  // logical line. Pandoc already supplies these spans in some listings;
+  // hand-authored listings are split here so they receive identical spacing,
+  // patch backgrounds, and syntax coloring.
+  document.querySelectorAll('.instruction-code code').forEach((code) => {
+    const hasLineSpans = [...code.children]
+      .some((child) => child.tagName === 'SPAN')
+
+    if (!hasLineSpans) {
+      const lines = code.textContent.split('\n')
+      if (lines.at(-1) === '') lines.pop()
+
+      code.replaceChildren(...lines.map((source) => {
+        const line = document.createElement('span')
+        line.textContent = source
+        return line
+      }))
+    }
+
+    code.classList.add('line-based-code')
+  })
+
+  // Apply lightweight local syntax highlighting without requiring a
+  // network-loaded library. Keeping each outer line span intact preserves
+  // patch backgrounds and intentional blank lines.
+  ;(() => {
     const escapeHtml = (value) => value
       .replaceAll('&', '&amp;')
       .replaceAll('<', '&lt;')
@@ -2024,7 +2321,7 @@ Guide</h2>
       return 'patch-syntax-operator'
     }
 
-    document.querySelectorAll('.instruction-code.code-add > code > span').forEach((line) => {
+    document.querySelectorAll('.instruction-code code.line-based-code > span').forEach((line) => {
       let cursor = 0
       let highlighted = ''
       const source = line.textContent
