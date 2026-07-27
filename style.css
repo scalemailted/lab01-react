@@ -292,6 +292,48 @@ pre.terminal.text code {
   text-align: center;
 }
 
+/* Assessment expected-result screenshots */
+.assessment-figure,
+.assessment-figure-grid {
+  margin: 1rem 0 1.35rem;
+}
+.assessment-figure-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.assessment-figure,
+.assessment-figure-grid figure {
+  padding: .6rem;
+  border: 1px solid #b8c4d8;
+  border-radius: .4rem;
+  background: #f7f9fb;
+}
+.assessment-figure-grid figure {
+  margin: 0;
+}
+.assessment-figure img,
+.assessment-figure-grid img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid #d6dce5;
+  background: white;
+}
+.assessment-figure figcaption,
+.assessment-figure-grid figcaption {
+  margin-top: .55rem;
+  color: #4b5667;
+  font-size: .88rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 700px) {
+  .assessment-figure-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 700px) {
   .asset-flow {
     grid-template-columns: 1fr;

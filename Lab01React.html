@@ -970,6 +970,10 @@ Elements panel: the source body contains only <code>#root</code> and the
 module script, while the Elements panel also contains Home's rendered
 elements. This demonstrates that React creates the visible interface at
 runtime.</p>
+<figure class="assessment-figure">
+  <img src="assets/assessments/goal-02-home.png" alt="Goal 2 Home screen with the React Adventure Game title, story image, and Start button" />
+  <figcaption><strong>Expected result:</strong> React renders the Home component. The Start button is visible but does not navigate until Goal 3.</figcaption>
+</figure>
 <hr/>
 <h2 id="goal-3-create-spa-page-navigation">Goal 3: Create SPA Page
 Navigation</h2>
@@ -1052,6 +1056,10 @@ the rest of the lab: create the component, import it into
 <p>Click Start. The Home component should disappear and Intro should
 appear without loading another HTML file. In the Network panel, confirm
 that clicking does not request <code>intro.html</code>.</p>
+<figure class="assessment-figure">
+  <img src="assets/assessments/goal-03-intro.png" alt="Goal 3 Story Introduction screen after navigating from Home without loading another document" />
+  <figcaption><strong>Expected result:</strong> Start replaces Home with Intro inside the same React application. Inventory is introduced in the next goal.</figcaption>
+</figure>
 <hr/>
 <h2 id="goal-4-share-inventory-with-context">Goal 4: Share Inventory
 with Context</h2>
@@ -1270,6 +1278,10 @@ the changed value. Restore the original value before continuing. Inspect
 <code>src/App.jsx</code> and confirm it no longer passes a
 <code>goTo</code> prop. Do not click “Adventure out of town” yet:
 Overworld is created and registered in Goal 6.</p>
+<figure class="assessment-figure">
+  <img src="assets/assessments/goal-04-starting-inventory.png" alt="Goal 4 Intro screen showing zero gold, three health, one attack, and zero keys" />
+  <figcaption><strong>Expected result:</strong> Intro reads the fresh shared player state: 0 gold, 3 health, 1 attack, and 0 keys.</figcaption>
+</figure>
 <hr/>
 <h2 id="goal-5-reuse-components-and-props">Goal 5: Reuse Components and
 Props</h2>
@@ -1474,6 +1486,16 @@ awarded the elder's deposit before navigation. Continue to Forest and
 back. Inventory should remain at 5 gold without appearing in the URL.
 Return Home, click Start again, and confirm Intro resets to 0 gold before
 the quest is accepted again.</p>
+<div class="assessment-figure-grid">
+  <figure>
+    <img src="assets/assessments/goal-04-quest-deposit.png" alt="Goal 6 Overworld screen showing the five-gold quest deposit and three destination choices" />
+    <figcaption><strong>Overworld:</strong> accepting the quest changes gold from 0 to 5 before this scene renders.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/assessments/goal-06-forest.png" alt="Goal 6 Forest screen with Hills, Swamp, and Exit navigation choices while inventory persists" />
+    <figcaption><strong>Forest:</strong> navigation changes the component while the five-gold inventory remains shared.</figcaption>
+  </figure>
+</div>
 <hr/>
 <h2 id="goal-7-use-local-state-in-the-swamp">Goal 7: Use Local State in
 the Swamp</h2>
@@ -1577,6 +1599,16 @@ returns, React remounts the scene and its local choice state begins fresh.</p>
 <p>Register a component in the same goal that creates it. The Forest link can now render Swamp immediately.</p>
 <h3 id="assess--testing-phase-7">Assess — Testing Phase</h3>
 <p>Travel Home → Intro → Overworld → Forest → Swamp. Choose “Search outside the hut.” The death screen should replace the Swamp UI without direct DOM manipulation. Choose Game Over, start again, and confirm Swamp returns to its initial local state.</p>
+<div class="assessment-figure-grid">
+  <figure>
+    <img src="assets/assessments/goal-07-swamp-choice.png" alt="Goal 7 Swamp scene showing the hut and the two local choices" />
+    <figcaption><strong>Before the choice:</strong> Swamp renders its normal interface. The Hut destination is implemented in Goal 8.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/assessments/goal-07-swamp-death.png" alt="Goal 7 alligator game-over screen after searching outside the hut" />
+    <figcaption><strong>Search outside:</strong> local state selects the alligator death screen without replacing the DOM manually.</figcaption>
+  </figure>
+</div>
 <hr/>
 <h2 id="goal-8-update-shared-state-in-the-hut">Goal 8: Update Shared
 State in the Hut</h2>
@@ -1674,6 +1706,16 @@ with the inventory carried from other pages.</p>
 </code></pre>
 <h3 id="assess--testing-phase-8">Assess — Testing Phase</h3>
 <p>First visit the Hut with the normal starting value of zero keys and click the door; it should remain locked. Then temporarily set <code>startingPlayer.keys</code> to <code>1</code>, restart the game, return to the Hut, and click the door once. Confirm the key decreases from 1 to 0, the image changes to the open door, and the unlock message appears. Do not click the open door yet because Hut Interior is added in the next goal. Restore <code>keys: 0</code> after the test.</p>
+<div class="assessment-figure-grid">
+  <figure>
+    <img src="assets/assessments/goal-08-hut-locked.png" alt="Goal 8 locked hut door with a locked message and zero keys" />
+    <figcaption><strong>No key:</strong> the door remains locked and shared inventory does not change.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/assessments/goal-08-hut-open.png" alt="Goal 8 open hut door after consuming the temporary key" />
+    <figcaption><strong>One key:</strong> the key is consumed, the door image opens, and the unlock message appears.</figcaption>
+  </figure>
+</div>
 <hr/>
 <h2 id="goal-9-render-video-in-the-hut-interior">Goal 9: Render Video in
 the Hut Interior</h2>
@@ -1747,6 +1789,10 @@ the two-scene hut interaction.</p>
 </code></pre>
 <h3 id="assess--testing-phase-9">Assess — Testing Phase</h3>
 <p>Temporarily start with one key, restart, travel to the Hut, click once to unlock it, and click the open door again. Hut Interior should render, the video should autoplay silently and loop, and the shared inventory should appear below the scene without an iframe. Exit back to the Hut, then restore the starting key value to zero.</p>
+<figure class="assessment-figure">
+  <img src="assets/assessments/goal-09-hut-interior.png" alt="Goal 9 hut interior scene with the magical tome video and shared inventory" />
+  <figcaption><strong>Expected result:</strong> the interior image and muted looping video render as part of the component; the still frame may vary while the video plays.</figcaption>
+</figure>
 <hr/>
 <h2 id="goal-10-update-shared-state-in-the-shoppe">Goal 10: Update Shared State in the Shoppe</h2>
 <h3>Approach — Design Phase</h3>
@@ -1826,6 +1872,10 @@ logic exists in a file but cannot become visible.</p>
 </code></pre>
 <h3>Assess — Testing Phase</h3>
 <ul><li>Accept the Intro quest, travel from Overworld to Shoppe, and confirm the scene renders without loading another HTML document.</li><li>With the 5-gold quest deposit, buy Health once and confirm gold decreases by 1 while health increases by 1.</li><li>Return Home and click Start to reset gold to 0. Accept the quest again, return to the Shoppe, buy one Attack upgrade, and confirm all 5 deposited gold is consumed while attack increases by 1.</li><li>Attempt another purchase without enough gold; no inventory value should change.</li><li>Temporarily set <code>startingPlayer.gp</code> to <code>15</code>, restart, accept the 5-gold deposit, and verify that the resulting 20 gold can test Health, Attack, and Key purchases. Restore <code>gp: 0</code> afterward.</li></ul>
+<figure class="assessment-figure">
+  <img src="assets/assessments/goal-10-shoppe-purchase.png" alt="Goal 10 Shoppe after buying Health, showing four gold and four health" />
+  <figcaption><strong>Successful purchase:</strong> buying Health with the quest deposit changes gold from 5 to 4 and health from 3 to 4. An unaffordable purchase must leave these values unchanged.</figcaption>
+</figure>
 <hr/>
 <h2 id="goal-11-combine-local-and-shared-state-in-goblin-combat">Goal 11: Combine Local and Shared State in Goblin Combat</h2>
 <h3>Approach — Design Phase</h3>
@@ -1932,6 +1982,16 @@ recreates Goblin's local encounter state while preserving Context inventory.</p>
 </code></pre>
 <h3>Assess — Testing Phase</h3>
 <ul><li>Travel from Overworld to Forest and then to Goblin. Confirm Retreat returns to Forest while preserving the current player inventory.</li><li>Temporarily use hp: 10 and ap: 3, restart, and verify one attack defeats the goblin, awards 3 gold, changes the image, and stops further combat.</li><li>Temporarily use hp: 1 and ap: 1, restart, and verify the goblin retaliation reduces health to zero and displays Game Over.</li><li>Restore the normal starting values, buy one Attack upgrade in the Shoppe, then fight repeatedly. Confirm shared health and gold remain updated after leaving the encounter.</li><li>Confirm the fight controls disappear after either victory or death.</li></ul>
+<div class="assessment-figure-grid">
+  <figure>
+    <img src="assets/assessments/goal-11-goblin-victory.png" alt="Goal 11 Goblin victory screen with treasure, awarded gold, and no fight controls" />
+    <figcaption><strong>Victory branch:</strong> treasure replaces the goblin, 3 gold is awarded, and combat controls disappear.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/assessments/goal-11-goblin-death.png" alt="Goal 11 Goblin game-over branch with player health at zero" />
+    <figcaption><strong>Death branch:</strong> retaliation reduces health to zero and only the Game Over action remains.</figcaption>
+  </figure>
+</div>
 <hr/>
 <h2 id="goal-12-use-a-controlled-form-and-reach-the-dragon">Goal 12: Use a Controlled Form and Reach the Dragon</h2>
 <h3 id="approach--design-phase-10">Approach — Design Phase</h3>
@@ -2059,6 +2119,16 @@ form submission can immediately resolve to Dragon.</p>
 </code></pre>
 <h3 id="assess--testing-phase-10">Assess — Testing Phase</h3>
 <p>Travel from Overworld to Dungeon. Type open and submit; Dragon should render as the completed success destination. Choose Start Over and confirm the Home scene returns. Restart, return to Dungeon, and submit any other word; the death screen should appear. Also verify that pressing Enter submits the controlled form and that the input always reflects the current React state.</p>
+<div class="assessment-figure-grid">
+  <figure>
+    <img src="assets/assessments/goal-12-dragon.png" alt="Goal 12 Dragon's Lair success scene after submitting the word open" />
+    <figcaption><strong>Correct word:</strong> submitting <code>open</code> navigates to the Dragon success destination.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/assessments/goal-12-dungeon-failure.png" alt="Goal 12 spell failure game-over scene after submitting an incorrect word" />
+    <figcaption><strong>Incorrect word:</strong> any other value selects the spell-death branch without reloading the page.</figcaption>
+  </figure>
+</div>
 <hr/>
 <hr/>
 <h2 id="end-complete-test-and-build-the-app">End: Complete, Test, and Build the App</h2>
