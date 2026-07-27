@@ -105,8 +105,10 @@
 Contents</a></li>
 <li><a href="#lab-introduction" id="toc-lab-introduction">Lab
 Introduction</a></li>
-<li><a href="#goal-0-compare-the-architectures" id="toc-goal-0-compare-the-architectures">Goal 0: Compare the
-Architectures</a></li>
+<li><a href="#html-to-react-architecture-comparison" id="toc-html-to-react-architecture-comparison">HTML-to-React Architecture
+Comparison</a></li>
+<li><a href="#goal-0-roadmap-the-application" id="toc-goal-0-roadmap-the-application">Goal 0: Roadmap the
+Application</a></li>
 <li><a href="#goal-1-create-a-vite--react-project" id="toc-goal-1-create-a-vite--react-project">Goal 1: Create a Vite +
 React Project</a></li>
 <li><a href="#goal-2-render-the-home-component-with-jsx" id="toc-goal-2-render-the-home-component-with-jsx">Goal 2: Render the
@@ -166,8 +168,8 @@ shared player state in memory.</p>
 </tr>
 <tr class="even">
 <td>Goal 0</td>
-<td style="text-align: right;">5 minutes</td>
-<td>Compare the two architectures</td>
+<td style="text-align: right;">10 minutes</td>
+<td>Roadmap the application milestones and validation gates</td>
 </tr>
 <tr class="odd">
 <td>Goal 1</td>
@@ -553,8 +555,8 @@ lets JavaScript decide which elements and values React should
 render.</p>
 </blockquote>
 <hr/>
-<h2 id="goal-0-compare-the-architectures">Goal 0: Compare the
-Architectures</h2>
+<h2 id="html-to-react-architecture-comparison">HTML-to-React Architecture
+Comparison</h2>
 <h3 id="approach--design-phase">Approach — Design Phase</h3>
 <p>The story flow does not change. Only the way the browser represents
 each scene and carries state changes.</p>
@@ -618,6 +620,83 @@ shoppe.html     →  src/pages/Shoppe.jsx</code></pre>
 <p>Notice that the address bar changes documents and repeats the
 inventory query string. In the React version, the browser remains in the
 Vite application and React changes the visible component.</p>
+<hr/>
+<h2 id="goal-0-roadmap-the-application">Goal 0: Roadmap the Application</h2>
+<h3 id="approach--roadmapping-phase">Approach — Roadmapping Phase</h3>
+<p>A <strong>development roadmap</strong> turns a large product idea into an
+ordered sequence of achievable milestones. It identifies what each milestone
+delivers, which earlier work it depends on, and how the team will know it is
+complete. A useful milestone has a clear purpose, introduces a limited amount
+of new complexity, and ends with something that can be run and verified.</p>
+<p>This lab uses its goals as an application roadmap rather than presenting
+the completed React application all at once. Goal 1 deliberately produces an
+empty but working Vite project. That result may look small, but it verifies
+the tooling, HTML entry document, favicon, and public assets before React
+components introduce more possible sources of error. Each later goal adds one
+meaningful feature or architectural capability to that known-working
+foundation.</p>
+<table>
+<thead>
+<tr><th>Milestones</th><th>What they establish</th><th>Why this order matters</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Goal 0</td>
+<td>The development roadmap, dependencies, and completion gates</td>
+<td>Plan the work before changing the application.</td>
+</tr>
+<tr>
+<td>Goals 1–2</td>
+<td>The Vite foundation, JSX, and the first component</td>
+<td>Verify the environment and rendering pipeline before adding interaction.</td>
+</tr>
+<tr>
+<td>Goals 3–4</td>
+<td>Page navigation and shared game state</td>
+<td>Create the application's state and navigation backbone before many scenes depend on it.</td>
+</tr>
+<tr>
+<td>Goals 5–6</td>
+<td>Reusable UI components and the first connected story branches</td>
+<td>Establish composition patterns before repeating page structures.</td>
+</tr>
+<tr>
+<td>Goals 7–9</td>
+<td>Local state, shared-state updates, conditional UI, and media</td>
+<td>Add focused interactions one at a time while the surrounding app remains stable.</td>
+</tr>
+<tr>
+<td>Goals 10–12</td>
+<td>Purchases, combat, controlled forms, and the completed story route</td>
+<td>Combine previously tested concepts into more complex features.</td>
+</tr>
+<tr>
+<td>End</td>
+<td>Regression testing and a production build</td>
+<td>Verify that the complete system works together and can be deployed.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="apply--milestone-cycle">Apply — Define the Milestone Cycle</h3>
+<p>Every implementation goal follows the same cycle:</p>
+<ol>
+<li><strong>Approach:</strong> define the feature, its design, and the React
+concepts that support it.</li>
+<li><strong>Apply:</strong> make a small, bounded set of file changes that
+produces the next runnable version.</li>
+<li><strong>Assess:</strong> run the app and test the new behavior before
+building anything that depends on it.</li>
+</ol>
+<p>This is also a debugging strategy. When the app passes one milestone and
+fails after the next, the likely cause is limited to the most recent set of
+changes. In professional development, these verified increments can become
+issues, commits, pull requests, demonstrations, or release checkpoints.</p>
+<h3 id="assess--roadmap-gate">Assess — Roadmap Gate</h3>
+<p>Before beginning Goal 1, identify its deliverable: an empty Vite project
+that serves the correct title, favicon, and public assets. Also identify its
+dependency: Node.js and npm must work first. Do not continue when an Assess
+phase fails; every later milestone assumes the earlier foundation is
+working.</p>
 <hr/>
 <h2 id="goal-1-create-a-vite--react-project">Goal 1: Create a Vite +
 React Project</h2>
