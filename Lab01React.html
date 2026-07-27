@@ -2336,6 +2336,151 @@ Guide</h2>
       line.innerHTML = highlighted
     })
   })()
+
+  // Turn the long document into a progressively enhanced tutorial reader.
+  // The original headings and content remain intact for no-JavaScript and
+  // print use; this layer supplies a sticky sidebar and optional goal focus.
+  ;(() => {
+    const body = document.body
+    const toc = document.querySelector('#TOC')
+    const runningScript = document.currentScript
+    if (!toc || !runningScript) return
+
+    body.classList.add('tutorial-enhanced')
+
+    const main = document.createElement('main')
+    main.className = 'tutorial-content'
+    main.id = 'tutorial-content'
+    toc.after(main)
+
+    const contentNodes = [...body.childNodes].filter((node) => {
+      return node !== toc && node !== main && node !== runningScript
+    })
+    main.append(...contentNodes)
+
+    const originalNodes = [...main.childNodes]
+    const preamble = document.createElement('div')
+    preamble.className = 'tutorial-preamble'
+    main.replaceChildren(preamble)
+
+    const sections = []
+    let container = preamble
+
+    originalNodes.forEach((node) => {
+      if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'H2') {
+        const section = document.createElement('section')
+        section.className = 'tutorial-section'
+        section.dataset.sectionId = node.id
+        main.append(section)
+        sections.push(section)
+        container = section
+      }
+      container.append(node)
+    })
+
+    const legacyContents = sections.find((section) => {
+      return section.dataset.sectionId === 'table-of-contents'
+    })
+    legacyContents?.classList.add('legacy-toc-section')
+
+    const navigable = sections.filter((section) => {
+      return section !== legacyContents
+    })
+
+    function sectionLabel(section) {
+      const heading = section.querySelector(':scope > h2')
+      return heading ? heading.textContent.replace(/\s+/g, ' ').trim() : ''
+    }
+
+    function sectionGroup(section) {
+      const id = section.dataset.sectionId
+      if (id.startsWith('goal-')) return 'Goals'
+      if (id.startsWith('appendix-')) return 'Reference'
+      if (id.startsWith('end-') || id === 'concluding-notes') return 'Finish'
+      return 'Overview'
+    }
+
+    const menuToggle = document.createElement('button')
+    menuToggle.type = 'button'
+    menuToggle.className = 'tutorial-menu-toggle'
+    menuToggle.setAttribute('aria-expanded', 'false')
+    menuToggle.textContent = '☰ Tutorial navigation'
+
+    const panel = document.createElement('div')
+    panel.className = 'tutorial-nav-panel'
+
+    const list = document.createElement('ul')
+    list.className = 'tutorial-nav-list'
+    list.setAttribute('aria-label', 'Tutorial chapters')
+    panel.append(list)
+    toc.before(menuToggle)
+    toc.replaceChildren(panel)
+
+    let lastGroup = ''
+    const links = new Map()
+
+    navigable.forEach((section) => {
+      const id = section.dataset.sectionId
+
+      const group = sectionGroup(section)
+      if (group !== lastGroup) {
+        const groupItem = document.createElement('li')
+        groupItem.className = 'tutorial-nav-group'
+        groupItem.textContent = group
+        list.append(groupItem)
+        lastGroup = group
+      }
+
+      const item = document.createElement('li')
+      const link = document.createElement('a')
+      link.href = `#${id}`
+      link.textContent = sectionLabel(section)
+      link.addEventListener('click', () => {
+        toc.classList.remove('nav-open')
+        menuToggle.setAttribute('aria-expanded', 'false')
+      })
+      item.append(link)
+      list.append(item)
+      links.set(id, link)
+    })
+
+    function setActiveSection(section) {
+      links.forEach((link, id) => {
+        if (id === section.dataset.sectionId) {
+          link.setAttribute('aria-current', 'location')
+        } else {
+          link.removeAttribute('aria-current')
+        }
+      })
+    }
+
+    menuToggle.addEventListener('click', () => {
+      const isOpen = toc.classList.toggle('nav-open')
+      menuToggle.setAttribute('aria-expanded', String(isOpen))
+    })
+
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
+      if (visible[0]) setActiveSection(visible[0].target)
+    }, {
+      rootMargin: '-10% 0px -75% 0px',
+      threshold: 0,
+    })
+
+    navigable.forEach((section) => observer.observe(section))
+
+    const initialTarget = document.getElementById(
+      decodeURIComponent(location.hash.slice(1)),
+    )
+    const initialSection = initialTarget?.closest('.tutorial-section')
+    if (initialSection && navigable.includes(initialSection)) {
+      setActiveSection(initialSection)
+    } else {
+      setActiveSection(navigable[0])
+    }
+  })()
 </script>
 </body>
 </html>
