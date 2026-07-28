@@ -2588,8 +2588,9 @@ Guide</h2>
     })
 
     function setActiveSection(section) {
+      const sectionId = section.dataset.sectionId
       links.forEach((link, id) => {
-        if (id === section.dataset.sectionId) {
+        if (id === sectionId) {
           link.setAttribute('aria-current', 'location')
         } else {
           link.removeAttribute('aria-current')
