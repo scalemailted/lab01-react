@@ -2547,7 +2547,7 @@ Guide</h2>
     menuToggle.type = 'button'
     menuToggle.className = 'tutorial-menu-toggle'
     menuToggle.setAttribute('aria-expanded', 'false')
-    menuToggle.textContent = '☰ Tutorial navigation'
+    menuToggle.setAttribute('aria-controls', 'TOC')
 
     const panel = document.createElement('div')
     panel.className = 'tutorial-nav-panel'
@@ -2580,7 +2580,7 @@ Guide</h2>
       link.textContent = sectionLabel(section)
       link.addEventListener('click', () => {
         toc.classList.remove('nav-open')
-        menuToggle.setAttribute('aria-expanded', 'false')
+        updateMenuToggle()
       })
       item.append(link)
       list.append(item)
@@ -2597,10 +2597,54 @@ Guide</h2>
       })
     }
 
+    const narrowViewport = window.matchMedia('(max-width: 900px)')
+
+    try {
+      if (localStorage.getItem('lab-navigation-collapsed') === 'true') {
+        body.classList.add('nav-collapsed')
+      }
+    } catch {
+      // The tutorial still works when browser privacy settings block storage.
+    }
+
+    function updateMenuToggle() {
+      if (narrowViewport.matches) {
+        const isOpen = toc.classList.contains('nav-open')
+        menuToggle.textContent = isOpen ? '✕ Close chapters' : '☰ Chapters'
+        menuToggle.setAttribute('aria-expanded', String(isOpen))
+        menuToggle.setAttribute('aria-label', isOpen
+          ? 'Close tutorial chapters'
+          : 'Open tutorial chapters')
+        return
+      }
+
+      const isCollapsed = body.classList.contains('nav-collapsed')
+      menuToggle.textContent = isCollapsed ? '☰ Show chapters' : '← Hide chapters'
+      menuToggle.setAttribute('aria-expanded', String(!isCollapsed))
+      menuToggle.setAttribute('aria-label', isCollapsed
+        ? 'Show tutorial chapters'
+        : 'Hide tutorial chapters')
+    }
+
     menuToggle.addEventListener('click', () => {
-      const isOpen = toc.classList.toggle('nav-open')
-      menuToggle.setAttribute('aria-expanded', String(isOpen))
+      if (narrowViewport.matches) {
+        toc.classList.toggle('nav-open')
+      } else {
+        const isCollapsed = body.classList.toggle('nav-collapsed')
+        try {
+          localStorage.setItem('lab-navigation-collapsed', String(isCollapsed))
+        } catch {
+          // Ignore storage failures; the current-page toggle still works.
+        }
+      }
+      updateMenuToggle()
     })
+
+    narrowViewport.addEventListener('change', () => {
+      toc.classList.remove('nav-open')
+      updateMenuToggle()
+    })
+    updateMenuToggle()
 
     const observer = new IntersectionObserver((entries) => {
       const visible = entries
