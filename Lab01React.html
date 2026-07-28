@@ -88,6 +88,7 @@
     code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
   </style>
 <link href="style.css" rel="stylesheet"/>
+<link href="assets/workspace/tutorial-editor.css" rel="stylesheet"/>
 <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
@@ -2668,6 +2669,24 @@ Guide</h2>
       setActiveSection(navigable[0])
     }
   })()
+</script>
+<script type="module">
+  // Sandpack includes browser-targeted packages that inspect Node's process
+  // global. Supply the minimal environment surface before loading the editor.
+  globalThis.process ??= {
+    env: { NODE_ENV: 'production' },
+    emit() {},
+    exit() {},
+  }
+  import('./assets/workspace/tutorial-editor.js').catch((error) => {
+    console.error('Interactive workspace failed to load:', error)
+    const notice = document.createElement('button')
+    notice.type = 'button'
+    notice.className = 'workspace-load-error'
+    notice.textContent = 'Interactive workspace unavailable'
+    notice.title = error?.message || 'The browser could not load the editor bundle.'
+    document.body.append(notice)
+  })
 </script>
 </body>
 </html>

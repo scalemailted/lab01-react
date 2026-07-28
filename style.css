@@ -334,6 +334,19 @@ pre.terminal.text code {
   }
 }
 
+.workspace-load-error {
+  position: fixed;
+  z-index: 70;
+  top: .75rem;
+  right: .75rem;
+  padding: .5rem .7rem;
+  border: 1px solid #b42318;
+  border-radius: .3rem;
+  background: #fff1f0;
+  color: #8a1c13;
+  font: 700 .78rem/1.2 Arial, Helvetica, sans-serif;
+}
+
 @media (max-width: 700px) {
   .asset-flow {
     grid-template-columns: 1fr;
