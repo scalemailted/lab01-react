@@ -29859,19 +29859,19 @@ function cz(r, e, i) {
           }
           return [3, 5];
         case 1:
-          return [4, import("./index-CYINI0nC.js").then(function(m) {
+          return [4, import("./index-jSfEJlaj.js").then(function(m) {
             return m.SandpackNode;
           })];
         case 2:
           return c = p.sent(), [3, 7];
         case 3:
-          return [4, import("./index-599aeaf7-XCc-8fDz.js").then(function(m) {
+          return [4, import("./index-599aeaf7-DN8pLKzr.js").then(function(m) {
             return m.SandpackStatic;
           })];
         case 4:
           return c = p.sent(), [3, 7];
         case 5:
-          return [4, import("./index-DymKh25P.js").then(function(m) {
+          return [4, import("./index-fi8k927l.js").then(function(m) {
             return m.SandpackRuntime;
           })];
         case 6:
@@ -53562,8 +53562,7 @@ function nY() {
               ]
             },
             `${i}-${S}`
-          ),
-          /* @__PURE__ */ N.jsx("p", { className: "workspace-disclaimer", children: "Practice here, then make the same changes in your local Vite project." })
+          )
         ]
       }
     )
